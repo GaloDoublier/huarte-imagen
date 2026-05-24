@@ -4,6 +4,8 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { createService, updateService } from "@/actions/services"; 
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +26,9 @@ export interface ServiceFormData {
   name: string;
   category: string;
   description: string;
-  price: string;
-  duration: string;
+  // 1. Cambiamos price para que acepte números (o vacío si borran todo)
+  price: number | ""; 
+  duration: string; // duration lo dejamos en string porque en tu Prisma quedó como String
   status: "active" | "draft";
   image: string;
 }
@@ -39,7 +42,7 @@ const defaultFormData: ServiceFormData = {
   name: "",
   category: "",
   description: "",
-  price: "",
+  price: "", // Arranca vacío
   duration: "",
   status: "draft",
   image: "",
@@ -53,11 +56,19 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
   const [isSaving, setIsSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  // 2. Mejoramos el handler para que convierta el texto a número automáticamente
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    
+    let parsedValue: string | number = value;
+    
+    if (type === "number") {
+      parsedValue = value === "" ? "" : Number(value);
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: parsedValue }));
   };
 
   const handleCategoryChange = (value: string) => {
@@ -117,14 +128,27 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
     e.preventDefault();
     setIsSaving(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      let result;
+      
+      if (isEditing && formData.id) {
+        result = await updateService(formData.id, formData);
+      } else {
+        result = await createService(formData);
+      }
 
-    // In a real app, you would save to database here
-    console.log("Saving service:", formData);
-
-    setIsSaving(false);
-    router.push("/admin/servicios");
+      if (result.success) {
+        router.push("/admin/servicios");
+        router.refresh(); 
+      } else {
+        alert(result.error); 
+      }
+    } catch (error) {
+      console.error("Error al enviar formulario:", error);
+      alert("Ocurrió un error inesperado de conexión");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const isFormValid =
@@ -220,10 +244,12 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="price">Precio</Label>
+                  {/* 3. Agregamos type="number" acá */}
                   <Input
                     id="price"
                     name="price"
-                    placeholder="Ej: €45"
+                    type="number" 
+                    placeholder="Ej: 45000"
                     value={formData.price}
                     onChange={handleInputChange}
                     className="bg-background"

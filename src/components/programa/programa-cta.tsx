@@ -2,8 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { ExternalLink, MessageCircle } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 export function ProgramaCTA() {
+  const posthog = usePostHog();
   return (
     <section className="py-24 md:py-32 bg-foreground text-background">
       <div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
@@ -23,6 +25,7 @@ export function ProgramaCTA() {
             asChild
             size="lg"
             className="bg-background text-foreground hover:bg-background/90 px-10 py-6 text-sm uppercase tracking-wider"
+            onClick={() => posthog.capture("program_clicked")}
           >
             <a
               href="https://hotmart.com"
@@ -31,21 +34,6 @@ export function ProgramaCTA() {
             >
               <ExternalLink className="mr-2 h-4 w-4" />
               Acceder al programa
-            </a>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="border-background text-background hover:bg-background hover:text-foreground px-10 py-6 text-sm uppercase tracking-wider"
-          >
-            <a
-              href="https://wa.me/34600000000?text=Hola, tengo dudas sobre el programa Imagen y Belleza"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <MessageCircle className="mr-2 h-4 w-4" />
-              Resolver dudas
             </a>
           </Button>
         </div>

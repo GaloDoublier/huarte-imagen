@@ -17,7 +17,7 @@ import {
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Servicios", href: "/admin/servicios", icon: Sparkles },
-  { name: "Portfolio", href: "/admin/portfolio", icon: Image },
+  { name: "Galeria", href: "/admin/portfolio", icon: Image },
   { name: "Configuración", href: "/admin/configuracion", icon: Settings },
 ];
 

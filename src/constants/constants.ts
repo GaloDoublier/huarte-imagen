@@ -13,3 +13,6 @@ export const PORTFOLIO_IMAGES = [
   { id: 1, src: "/portfolio/img1.jpg", alt: "Maquillaje de novia" },
   // ... completar.
 ];
+
+  export const whatsappUrl =
+    "https://wa.me/1234567890?text=Hola,%20me%20gustaría%20más%20información%20sobre%20tus%20servicios";

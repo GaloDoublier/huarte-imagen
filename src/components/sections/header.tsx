@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { whatsappUrl } from "@/constants/constants";
+import { usePostHog } from "posthog-js/react";
 
 const navigation = [
     { name: "Inicio", href: "#inicio" },
@@ -14,7 +16,7 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const posthog = usePostHog();
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <nav className="mx-auto max-w-7xl px-6 lg:px-8" aria-label="Global">
@@ -51,8 +53,9 @@ export function Header() {
               asChild
               size="sm"
               className="bg-foreground text-background hover:bg-foreground/90 px-6 text-xs uppercase tracking-wider"
+              onClick={() => posthog.capture("whatsapp_clicked")}
             >
-              <a href="#contacto">Reservar</a>
+              <a href={whatsappUrl}  target="_blank" rel="noopener noreferrer">Reservar</a>
             </Button>
           </div>
 

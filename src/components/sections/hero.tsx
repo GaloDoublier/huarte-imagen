@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 export function Hero() {
+  const posthog = usePostHog();
   const whatsappUrl =
     "https://wa.me/1234567890?text=Hola,%20me%20gustaría%20agendar%20una%20sesión";
 
@@ -41,6 +43,7 @@ export function Hero() {
                 asChild
                 size="lg"
                 className="bg-foreground text-background hover:bg-foreground/90 px-8 py-6 text-sm uppercase tracking-wider"
+                onClick={() => posthog.capture("whatsapp_clicked")}              
               >
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />

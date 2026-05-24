@@ -32,7 +32,7 @@ export default function AdminPortfolioPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
-            Portfolio
+            Galeria
           </h1>
           <p className="text-muted-foreground mt-1">
             Gestiona las imágenes de tu galería
@@ -92,11 +92,11 @@ export default function AdminPortfolioPage() {
               ))}
             </div>
           ) : (
-            <Empty
-              icon={ImageIcon}
-              title="Sin imágenes"
-              description="Sube imágenes para mostrar en tu portfolio"
-            />
+            <div className="flex flex-col items-center justify-center py-12">
+              <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="font-medium text-foreground mb-1">Sin imágenes</h3>
+              <p className="text-sm text-muted-foreground">Sube imágenes para mostrar en tu galería</p>
+            </div>
           )}
         </CardContent>
       </Card>

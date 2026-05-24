@@ -13,6 +13,7 @@ model Service {
   category    String   // cats: "Maquillaje", "Estética"
   description String
   price       Int 
+  duration    String?
   imageUrl    String? 
   isActive    Boolean  @default(true)
   

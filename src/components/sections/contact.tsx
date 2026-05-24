@@ -5,10 +5,35 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MessageCircle, Mail } from "lucide-react";
+import { useState } from "react";
+import { whatsappUrl } from "@/constants/constants";
+import { usePostHog } from "posthog-js/react";
 
 export function Contact() {
-  const whatsappUrl =
-    "https://wa.me/1234567890?text=Hola,%20me%20gustaría%20más%20información%20sobre%20tus%20servicios";
+  const [name, setName] = useState("");
+  const [emailField, setEmailField] = useState("");
+  const [service, setService] = useState("");
+  const [messageField, setMessageField] = useState("");
+
+  const posthog = usePostHog();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    posthog.capture("whatsapp_contact_form_submitted");
+
+    const text = `Hola, soy ${name || "(sin nombre)"}.\nEmail: ${
+      emailField || "(sin email)"
+    }.\nServicio: ${service || "(sin servicio)"}.\nMensaje: ${
+      messageField || "(sin mensaje)"
+    }`;
+
+    // Build whatsapp URL using the imported whatsappUrl base
+    const base = whatsappUrl.split("?")[0];
+    const url = `${base}?text=${encodeURIComponent(text)}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <section id="contacto" className="py-24 md:py-32 bg-card">
@@ -33,6 +58,7 @@ export function Contact() {
                 asChild
                 size="lg"
                 className="w-full sm:w-auto bg-[#25D366] text-white hover:bg-[#25D366]/90 px-8 py-6 text-sm uppercase tracking-wider"
+                onClick={() => posthog.capture("whatsapp_clicked")}
               >
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />
@@ -81,7 +107,7 @@ export function Contact() {
             <h3 className="font-serif text-2xl font-medium text-foreground mb-6">
               Envíame un mensaje
             </h3>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm text-foreground">
@@ -90,6 +116,8 @@ export function Contact() {
                   <Input
                     id="name"
                     placeholder="Tu nombre"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="bg-card border-border focus:border-accent"
                   />
                 </div>
@@ -101,6 +129,8 @@ export function Contact() {
                     id="email"
                     type="email"
                     placeholder="tu@email.com"
+                    value={emailField}
+                    onChange={(e) => setEmailField(e.target.value)}
                     className="bg-card border-border focus:border-accent"
                   />
                 </div>
@@ -112,6 +142,8 @@ export function Contact() {
                 <Input
                   id="service"
                   placeholder="¿Qué servicio te interesa?"
+                  value={service}
+                  onChange={(e) => setService(e.target.value)}
                   className="bg-card border-border focus:border-accent"
                 />
               </div>
@@ -123,6 +155,8 @@ export function Contact() {
                   id="message"
                   placeholder="Cuéntame un poco sobre ti y qué te gustaría lograr..."
                   rows={4}
+                  value={messageField}
+                  onChange={(e) => setMessageField(e.target.value)}
                   className="bg-card border-border focus:border-accent resize-none"
                 />
               </div>

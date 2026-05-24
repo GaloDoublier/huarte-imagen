@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Check, ExternalLink } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 const programFeatures = [
   "Módulos de colorimetría y análisis de estilo",
@@ -13,6 +14,7 @@ const programFeatures = [
 ];
 
 export function Program() {
+  const posthog = usePostHog();
   return (
     <section id="programa" className="py-24 md:py-32 bg-foreground text-background">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -47,6 +49,7 @@ export function Program() {
                 href="https://hotmart.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => posthog.capture("program_clicked")}
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Acceder al programa

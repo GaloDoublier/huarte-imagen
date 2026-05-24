@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Play } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 export function ProgramaHero() {
+  const posthog = usePostHog();
   return (
     <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-secondary/30">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -26,11 +28,13 @@ export function ProgramaHero() {
                 asChild
                 size="lg"
                 className="bg-foreground text-background hover:bg-foreground/90 px-8 py-6 text-sm uppercase tracking-wider"
+                onClick={() => posthog.capture("program_clicked")}           
               >
                 <a
                   href="https://hotmart.com"
                   target="_blank"
                   rel="noopener noreferrer"
+
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Acceder al programa

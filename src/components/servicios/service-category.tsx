@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Clock, MessageCircle } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 interface Service {
   title: string;
@@ -29,6 +30,7 @@ export function ServiceCategory({
   services,
   alternate = false,
 }: ServiceCategoryProps) {
+  const posthog = usePostHog();
   return (
     <section
       id={id}
@@ -79,6 +81,12 @@ export function ServiceCategory({
                 <Button
                   asChild
                   className="w-full bg-foreground text-background hover:bg-foreground/90 text-xs uppercase tracking-wider"
+                  onClick={() => {
+                    posthog.capture("service_reserved", {
+                      servicio: service.title,
+                      categoria: id,
+                    });
+                  }}
                 >
                   <a
                     href={`https://wa.me/34600000000?text=Hola, me interesa el servicio de ${service.title}`}

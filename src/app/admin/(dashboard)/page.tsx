@@ -1,103 +1,63 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getServices } from "@/actions/services";
+import { getAnalyticsStats } from "@/actions/analytics";
+import { TrafficChart, ConversionPieChart } from "@/components/analytics/dashboard-charts";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Sparkles,
-  ExternalLink,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Plus,
-} from "lucide-react";
+import { Sparkles, ExternalLink, Plus, MessageCircle, MousePointerClick, TrendingUp } from "lucide-react";
 
-// Mock data for services
-const mockServices = [
-  {
-    id: 1,
-    name: "Maquillaje Social",
-    category: "Maquillaje",
-    price: "€45",
-    status: "active",
-    createdAt: "2024-01-15",
-  },
-  {
-    id: 2,
-    name: "Maquillaje Nupcial",
-    category: "Maquillaje",
-    price: "€120",
-    status: "active",
-    createdAt: "2024-01-14",
-  },
-  {
-    id: 3,
-    name: "Limpieza Facial Profunda",
-    category: "Tratamientos",
-    price: "€65",
-    status: "active",
-    createdAt: "2024-01-12",
-  },
-  {
-    id: 4,
-    name: "Tratamiento Antiedad",
-    category: "Tratamientos",
-    price: "€85",
-    status: "inactive",
-    createdAt: "2024-01-10",
-  },
-  {
-    id: 5,
-    name: "Maquillaje Editorial",
-    category: "Maquillaje",
-    price: "€150",
-    status: "active",
-    createdAt: "2024-01-08",
-  },
-];
+export default async function AdminDashboardPage() {
+  const adminName = "Monica";
 
-// Mock stats
-const stats = [
-  {
-    label: "Total Servicios Activos",
-    value: "8",
-    icon: Sparkles,
-  },
-  {
-    label: "Visitas al Programa",
-    value: "247",
-    icon: ExternalLink,
-  },
-];
+  const services = await getServices();
+  const activeServicesCount = services.filter((s) => s.isActive).length;
 
-export default function AdminDashboardPage() {
-  const [adminName, setAdminName] = useState("Admin");
-  const [services, setServices] = useState(mockServices);
-
-  useEffect(() => {
-    const name = localStorage.getItem("admin_name");
-    if (name) setAdminName(name);
-  }, []);
-
-  const handleDelete = (id: number) => {
-    setServices(services.filter((s) => s.id !== id));
+  const statsPosthog = await getAnalyticsStats() || {
+    visitasTotales: 0,
+    clicsPrograma: 0,
+    clicsWhatsApp: 0,
+    clicsServicios: 0,
+    vistasPaginaPrograma: 0,
+    vistasPaginaServicios: 0,
+    topServicios: [],
+    visitasDiarias: []
   };
+
+  const tasaPrograma = statsPosthog.visitasTotales > 0 
+    ? ((statsPosthog.clicsPrograma / statsPosthog.visitasTotales) * 100).toFixed(1)
+    : "0.0";
+    
+  const tasaWhatsApp = statsPosthog.visitasTotales > 0
+    ? ((statsPosthog.clicsWhatsApp / statsPosthog.visitasTotales) * 100).toFixed(1)
+    : "0.0";
+
+  const stats = [
+    {
+      label: "Servicios Activos",
+      value: activeServicesCount.toString(),
+      icon: Sparkles,
+      subtext: "En el catálogo",
+    },
+    {
+      label: "Visitas Totales",
+      value: statsPosthog.visitasTotales.toString(),
+      icon: MousePointerClick,
+      subtext: "Últimos 30 días",
+    },
+    {
+      label: "Clics en Programa",
+      value: statsPosthog.clicsPrograma.toString(),
+      icon: ExternalLink,
+      subtext: `El ${tasaPrograma}% del trafico`,
+    },
+    {
+      label: "Contactos (WhatsApp)",
+      value: statsPosthog.clicsWhatsApp.toString(),
+      icon: MessageCircle,
+      subtext: `El ${tasaWhatsApp}% del trafico`,
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -132,7 +92,8 @@ export default function AdminDashboardPage() {
                   <p className="text-2xl font-semibold text-foreground">
                     {stat.value}
                   </p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-sm font-medium">{stat.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{stat.subtext}</p>
                 </div>
               </div>
             </CardContent>
@@ -140,118 +101,96 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Recent Services Table */}
-      <Card className="border-border/50">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg font-medium">
-            Servicios Recientes
-          </CardTitle>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin/servicios" className="text-muted-foreground">
-              Ver todos
-            </Link>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead className="hidden sm:table-cell">Categoría</TableHead>
-                  <TableHead className="hidden md:table-cell">Precio</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {services.slice(0, 5).map((service) => (
-                  <TableRow key={service.id}>
-                    <TableCell className="font-medium">{service.name}</TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">
-                      {service.category}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {service.price}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={service.status === "active" ? "default" : "secondary"}
-                        className={
-                          service.status === "active"
-                            ? "bg-accent/20 text-accent-foreground hover:bg-accent/30"
-                            : ""
-                        }
-                      >
-                        {service.status === "active" ? "Activo" : "Inactivo"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Abrir menú</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/admin/servicios/${service.id}`}>
-                              <Pencil className="h-4 w-4 mr-2" />
-                              Editar
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => handleDelete(service.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Eliminar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Card className="border-border/50 lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Tráfico de los últimos 30 días</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TrafficChart data={statsPosthog.visitasDiarias} />
+          </CardContent>
+        </Card>
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="border-border/50 hover:border-border transition-colors">
-          <Link href="/servicios" target="_blank">
-            <CardContent className="pt-6 flex items-center gap-3">
-              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                Ver página de Servicios
-              </span>
-            </CardContent>
-          </Link>
-        </Card>
-        <Card className="border-border/50 hover:border-border transition-colors">
-          <Link href="/programa-belleza" target="_blank">
-            <CardContent className="pt-6 flex items-center gap-3">
-              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                Ver página del Programa
-              </span>
-            </CardContent>
-          </Link>
-        </Card>
-        <Card className="border-border/50 hover:border-border transition-colors">
-          <Link href="/" target="_blank">
-            <CardContent className="pt-6 flex items-center gap-3">
-              <ExternalLink className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                Ver página principal
-              </span>
-            </CardContent>
-          </Link>
+        {/* Panel lateral de Top Servicios */}
+        <Card className="border-[#8d734e]/20 lg:col-span-1 shadow-sm bg-gradient-to-b from-transparent to-[#8d734e]/[0.02]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-medium flex items-center gap-2 text-[#312620]">
+              <TrendingUp className="h-5 w-5 text-[#8d734e]" />
+              Top Servicios Vistos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-5">
+              <p className="text-sm text-muted-foreground/80 mb-2 border-b border-[#8d734e]/10 pb-4">
+                Lo que más le interesa a tus clientes.
+              </p>
+              
+              <div className="space-y-4">
+                {statsPosthog.topServicios && statsPosthog.topServicios.length > 0 ? (
+                  statsPosthog.topServicios.map((servicio: any, index: number) => (
+                    <div key={servicio.nombre} className="flex justify-between items-center group">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        {/* Círculo decorativo para el número del ranking */}
+                        <span className="flex items-center justify-center h-6 w-6 rounded-full bg-[#8d734e]/10 text-[#8d734e] text-xs font-semibold shrink-0">
+                          {index + 1}
+                        </span>
+                        <span className="truncate text-sm font-medium text-[#312620] group-hover:text-[#8d734e] transition-colors duration-200">
+                          {servicio.nombre}
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-1 shrink-0 ml-4">
+                        <span className="font-semibold text-base text-[#8d734e]">
+                          {servicio.vistas}
+                        </span>
+                        <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                          clicks
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center py-8 bg-[#8d734e]/5 rounded-md border border-[#8d734e]/10">
+                    <p className="text-sm text-[#8d734e]/70">
+                      Aún no hay visitas registradas
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
         </Card>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="border-border/50">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Conversión /programa</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ConversionPieChart 
+              vistasTotales={statsPosthog.vistasPaginaPrograma}
+              clics={statsPosthog.clicsPrograma}
+              labelClic="Acceder al Programa"
+              labelVista="Se metieron en /programa"
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Conversión /servicios</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ConversionPieChart 
+              vistasTotales={statsPosthog.vistasPaginaServicios}
+              clics={statsPosthog.clicsServicios}
+              labelClic="Reserva de Servicio"
+              labelVista="Se metieron en /servicios"
+            />
+          </CardContent>
+        </Card>
+      </div>
+
     </div>
   );
 }

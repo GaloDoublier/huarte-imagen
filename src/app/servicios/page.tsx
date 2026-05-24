@@ -4,6 +4,7 @@ import { Footer } from "@/components/sections/footer";
 import { ServicesHero } from "@/components/servicios/services-hero";
 import { ServiceCategory } from "@/components/servicios/service-category";
 
+
 export const metadata: Metadata = {
   title: "Servicios | Huarte Imagen",
   description:
