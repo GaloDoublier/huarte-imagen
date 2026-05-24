@@ -42,3 +42,6 @@ next-env.d.ts
 
 #v0-app
 /v0-app
+
+#generado por prisma
+/src/generated/prisma

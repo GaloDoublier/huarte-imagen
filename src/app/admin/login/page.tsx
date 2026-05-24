@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react"; // Importamos la función real de Auth.js
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -11,8 +12,8 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@huarteimagen.com");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -22,17 +23,18 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setError("");
 
-    // Simulate authentication - replace with real auth
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
 
-    // Demo credentials check
-    if (email === "admin@huarteimagen.com" && password === "admin123") {
-      localStorage.setItem("admin_authenticated", "true");
-      localStorage.setItem("admin_name", "María");
-      router.push("/admin");
-    } else {
+    if (result?.error) {
       setError("Credenciales incorrectas");
       setIsLoading(false);
+    } else {
+      router.refresh();
+      router.push("/admin");
     }
   };
 
@@ -116,7 +118,6 @@ export default function AdminLoginPage() {
             </form>
           </CardContent>
         </Card>
-
       </div>
     </div>
   );
