@@ -1,7 +1,7 @@
 import { Header } from "@/components/sections/header";
 import { Hero } from "@/components/sections/hero";
 import { Services } from "@/components/sections/services";
-import { Portfolio } from "@/components/sections/portfolio";
+import { Espacio } from "@/components/sections/espacio";
 import { About } from "@/components/sections/about";
 import { Testimonials } from "@/components/sections/testimonials";
 import { Program } from "@/components/sections/program";
@@ -14,7 +14,7 @@ export default function Home() {
       <Header />
       <Hero />
       <Services />
-      <Portfolio />
+      <Espacio />
       <About />
       <Testimonials />
       <Program />

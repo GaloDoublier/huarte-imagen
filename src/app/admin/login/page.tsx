@@ -11,8 +11,8 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@huarteimagen.com");
+  const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -117,10 +117,6 @@ export default function AdminLoginPage() {
           </CardContent>
         </Card>
 
-        {/* Demo credentials hint */}
-        <p className="text-xs text-muted-foreground text-center mt-6">
-          Demo: admin@huarteimagen.com / admin123
-        </p>
       </div>
     </div>
   );

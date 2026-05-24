@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
 const navigation = [
+    { name: "Inicio", href: "#inicio" },
   { name: "Servicios", href: "/servicios" },
-  { name: "Espacio", href: "#espacio" },
   { name: "Programa", href: "/programa-belleza" },
   { name: "Contacto", href: "#contacto" },
 ];

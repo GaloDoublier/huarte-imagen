@@ -9,7 +9,7 @@ export function Hero() {
     "https://wa.me/1234567890?text=Hola,%20me%20gustaría%20agendar%20una%20sesión";
 
   return (
-    <section className="relative min-h-screen flex items-center">
+    <section id="inicio" className="relative min-h-screen flex items-center">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image

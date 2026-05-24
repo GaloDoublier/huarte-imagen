@@ -17,7 +17,7 @@ const portfolioImages = [
   },
 ];
 
-export function Portfolio() {
+export function Espacio() {
   return (
     <section id="espacio" className="py-24 md:py-32 bg-background">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -36,12 +36,10 @@ export function Portfolio() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 md:gap-6">
-          {portfolioImages.map((image, index) => (
+          {portfolioImages.map((image) => (
             <div
               key={image.src}
-              className={`relative overflow-hidden ${
-                index === 0 ? "md:row-span-2 aspect-[3/4]" : "aspect-square"
-              }`}
+              className={`relative overflow-hidden aspect-square`}
             >
               <Image
                 src={image.src || "/placeholder.svg"}
