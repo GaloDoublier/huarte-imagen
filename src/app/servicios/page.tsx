@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/sections/page-header";
 import { Footer } from "@/components/sections/footer";
 import { ServiceCategory } from "@/components/servicios/service-category";
 import { getCategoriesWithServices } from "@/actions/categories";
+import { AnnouncementBar } from "@/components/ui/announcement-bar";
 
 export const metadata: Metadata = {
   title: "Servicios | Huarte Imagen",
@@ -34,6 +35,7 @@ export default async function ServiciosPage() {
               a brillar.
             </p>
           </div>
+        
 
           {/* Botones de navegación dinámicos basados en la BDD */}
           {categories.length > 0 && (
@@ -54,6 +56,7 @@ export default async function ServiciosPage() {
           )}
         </div>
       </section>
+      <AnnouncementBar  message="¡25% de descuento pagando con tu tarjeta Porongon!" isActive={true} />
 
       {/* Secciones de Servicios agrupados por Categoría */}
       {categories.length > 0 ? (
