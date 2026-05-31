@@ -19,7 +19,6 @@ export default auth((req) => {
   return NextResponse.next()
 })
 
-//No ejecutar el middleware en archivos estáticos o imágenes
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }

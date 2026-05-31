@@ -15,6 +15,22 @@ export async function getServices() {
   }
 }
 
+export async function getFeaturedServices() {
+  try {
+    const featured = await prisma.service.findMany({
+      where: {
+        isActive: true,
+        isFeatured: true,
+      },
+      take: 4,
+    });
+    return featured;
+  } catch (error) {
+    console.error("Error fetching featured services:", error);
+    return [];
+  }
+}
+
 export async function getServiceById(id: string) {
   try {
     const service = await prisma.service.findUnique({
@@ -56,6 +72,7 @@ export async function createService(data: any) {
         duration: data.duration,
         imageUrl: data.image,
         isActive: data.status === "active",
+        isFeatured: data.isFeatured
       },
     });
 
@@ -82,6 +99,7 @@ export async function updateService(id: string, data: any) {
         duration: data.duration,  
         imageUrl: data.image,       
         isActive: data.status === "active",
+        isFeatured: data.isFeatured
       },
     });
 

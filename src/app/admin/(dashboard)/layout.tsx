@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -26,40 +27,19 @@ export default function AdminDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminName, setAdminName] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const auth = localStorage.getItem("admin_authenticated");
-    const name = localStorage.getItem("admin_name");
-    if (auth !== "true") {
-      router.push("/admin/login");
-    } else {
-      setIsAuthenticated(true);
-      setAdminName(name || "Admin");
-    }
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("admin_authenticated");
-    localStorage.removeItem("admin_name");
-    router.push("/admin/login");
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Verificando acceso...</div>
-      </div>
-    );
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
   }
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/admin/login" });
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile Header */}
       <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-card">
         <span className="font-serif text-lg font-medium tracking-wide">
           HUARTE IMAGEN
@@ -74,7 +54,6 @@ export default function AdminDashboardLayout({
       </div>
 
       <div className="flex">
-        {/* Sidebar */}
         <aside
           className={`
             fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out
@@ -83,14 +62,12 @@ export default function AdminDashboardLayout({
           `}
         >
           <div className="flex flex-col h-full">
-            {/* Sidebar Header */}
             <div className="hidden lg:flex items-center px-6 py-5 border-b border-border">
               <Link href="/admin" className="font-serif text-lg font-medium tracking-wide text-foreground">
                 HUARTE IMAGEN
               </Link>
             </div>
 
-            {/* Navigation */}
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto mt-14 lg:mt-0">
               {navigation.map((item) => {
                 const isActive = pathname === item.href;
@@ -115,11 +92,10 @@ export default function AdminDashboardLayout({
               })}
             </nav>
 
-            {/* Sidebar Footer */}
             <div className="px-3 py-4 border-t border-border">
               <div className="px-3 py-2 mb-2">
                 <p className="text-xs text-muted-foreground">Conectado como</p>
-                <p className="text-sm font-medium text-foreground">{adminName}</p>
+                <p className="text-sm font-medium text-foreground">Admin</p>
               </div>
               <Button
                 variant="ghost"
@@ -133,7 +109,6 @@ export default function AdminDashboardLayout({
           </div>
         </aside>
 
-        {/* Mobile Overlay */}
         {sidebarOpen && (
           <div
             className="fixed inset-0 bg-foreground/20 z-40 lg:hidden"
@@ -141,7 +116,6 @@ export default function AdminDashboardLayout({
           />
         )}
 
-        {/* Main Content */}
         <main className="flex-1 min-h-screen lg:min-h-[calc(100vh)]">
           <div className="p-6 lg:p-8">{children}</div>
         </main>

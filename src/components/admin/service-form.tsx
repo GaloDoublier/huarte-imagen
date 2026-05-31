@@ -30,6 +30,7 @@ export interface ServiceFormData {
   price: number | ""; 
   duration: string; // duration lo dejamos en string porque en tu Prisma quedó como String
   status: "active" | "draft";
+  isFeatured: boolean;
   image: string;
 }
 
@@ -45,6 +46,7 @@ const defaultFormData: ServiceFormData = {
   price: "", // Arranca vacío
   duration: "",
   status: "draft",
+  isFeatured: false,
   image: "",
 };
 
@@ -74,6 +76,10 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
   const handleCategoryChange = (value: string) => {
     setFormData((prev) => ({ ...prev, category: value }));
   };
+
+  const handleFeaturedChange = (checked: boolean) => {
+    setFormData((prev) => ({ ...prev, isFeatured: checked }));
+  }
 
   const handleStatusChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, status: checked ? "active" : "draft" }));
@@ -286,6 +292,8 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
               <CardTitle className="text-base font-medium">Estado</CardTitle>
             </CardHeader>
             <CardContent>
+            <div className="space-y-4">
+
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">
@@ -300,6 +308,22 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
                   onCheckedChange={handleStatusChange}
                 />
               </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    Servicio Principal
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Visible en la página principal (solo 4 servicios)
+                  </p>
+                </div>
+                <Switch
+                  checked={formData.isFeatured}
+                  onCheckedChange={handleFeaturedChange}
+                />
+              </div>
+            </div>
             </CardContent>
           </Card>
 

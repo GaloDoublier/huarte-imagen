@@ -31,6 +31,7 @@ export function ServiceCategory({
   alternate = false,
 }: ServiceCategoryProps) {
   const posthog = usePostHog();
+  
   return (
     <section
       id={id}
@@ -53,9 +54,9 @@ export function ServiceCategory({
               key={service.title}
               className="group bg-background border border-border/50 overflow-hidden hover:border-accent/30 transition-all duration-300"
             >
-              <div className="relative h-56 md:h-64 overflow-hidden">
+              <div className="relative h-56 md:h-64 overflow-hidden bg-muted">
                 <Image
-                  src={service.image}
+                  src={service.image || "/images/placeholder.jpg"}
                   alt={service.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -70,10 +71,12 @@ export function ServiceCategory({
                   {service.description}
                 </p>
                 <div className="flex flex-wrap items-center gap-4 mb-6">
-                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4" />
-                    {service.duration}
-                  </span>
+                  {service.duration && (
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      {service.duration}
+                    </span>
+                  )}
                   <span className="text-sm font-medium text-foreground">
                     {service.price}
                   </span>
@@ -84,7 +87,7 @@ export function ServiceCategory({
                   onClick={() => {
                     posthog.capture("service_reserved", {
                       servicio: service.title,
-                      categoria: id,
+                      categoria: title, // Pasamos el nombre real de la categoría a PostHog
                     });
                   }}
                 >

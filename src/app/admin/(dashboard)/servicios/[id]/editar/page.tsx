@@ -29,6 +29,7 @@ export default async function EditarServicioPage({
     price: service.price,
     duration: service.duration ?? "",
     status: service.isActive ? "active" : "draft",
+    isFeatured: service.isFeatured,
     image: service.imageUrl || "",
   };
 

@@ -45,3 +45,6 @@ next-env.d.ts
 
 #generado por prisma
 /src/generated/prisma
+
+#trackeo to-do's
+todos.md
