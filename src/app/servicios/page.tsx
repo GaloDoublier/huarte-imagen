@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { PageHeader } from "@/components/sections/page-header";
 import { Footer } from "@/components/sections/footer";
 import { ServiceCategory } from "@/components/servicios/service-category";
-import { getServices } from "@/actions/services";
+import { getCategoriesWithServices } from "@/actions/categories";
 
 export const metadata: Metadata = {
   title: "Servicios | Huarte Imagen",
@@ -10,29 +10,15 @@ export const metadata: Metadata = {
     "Descubre todos nuestros servicios de maquillaje profesional y tratamientos estéticos. Reserva tu cita por WhatsApp.",
 };
 
-const categoryText: Record<string, { subtitle: string; description: string }> = {
-  Maquillaje: {
-    subtitle: "Realza tu belleza",
-    description: "Cada rostro es único. Mis servicios de maquillaje están diseñados para potenciar tus rasgos naturales y hacerte sentir radiante.",
-  },
-  Estética: {
-    subtitle: "Cuida tu piel",
-    description: "Tratamientos profesionales con productos de alta calidad para mantener tu piel sana, luminosa y rejuvenecida.",
-  },
-  Estilismo: {
-    subtitle: "Encuentra tu estilo",
-    description: "Asesoría personalizada para que tu imagen exterior refleje tu verdadera esencia con total confianza.",
-  },
-};
-
 export default async function ServiciosPage() {
-  const allServices = await getServices();
-  const activeServices = allServices.filter((s) => s.isActive);
-  const categoriasUnicas = Array.from(new Set(activeServices.map((s) => s.category)));
+
+  const categories = await getCategoriesWithServices();
 
   return (
     <main className="min-h-screen bg-background">
       <PageHeader />
+      
+      {/* Hero */}
       <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-secondary/30">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
@@ -49,18 +35,18 @@ export default async function ServiciosPage() {
             </p>
           </div>
 
-
-          {categoriasUnicas.length > 0 && (
+          {/* Botones de navegación dinámicos basados en la BDD */}
+          {categories.length > 0 && (
             <div className="mt-12 flex flex-wrap justify-center gap-4">
-              {categoriasUnicas.map((categoria) => {
-                const categoryId = categoria.toLowerCase().replace(/\s+/g, "-");
+              {categories.map((cat) => {
+                const categoryId = cat.name.toLowerCase().replace(/\s+/g, "-");
                 return (
                   <a
-                    key={`nav-${categoria}`}
+                    key={`nav-${cat.id}`}
                     href={`#${categoryId}`}
                     className="px-6 py-3 bg-background border border-border text-foreground text-sm uppercase tracking-wider hover:bg-secondary transition-colors"
                   >
-                    {categoria}
+                    {cat.name}
                   </a>
                 );
               })}
@@ -69,11 +55,11 @@ export default async function ServiciosPage() {
         </div>
       </section>
 
-      {categoriasUnicas.length > 0 ? (
-        categoriasUnicas.map((categoria, index) => {
-          const serviciosDeEstaCategoria = activeServices.filter((s) => s.category === categoria);
-          
-          const mappedServices = serviciosDeEstaCategoria.map((s) => ({
+      {/* Secciones de Servicios agrupados por Categoría */}
+      {categories.length > 0 ? (
+        categories.map((cat, index) => {
+          const categoryId = cat.name.toLowerCase().replace(/\s+/g, "-");
+          const mappedServices = cat.services.map((s) => ({
             title: s.name,
             description: s.description || "",
             duration: s.duration || "Consultar",
@@ -81,22 +67,15 @@ export default async function ServiciosPage() {
             image: s.imageUrl || "/images/placeholder.jpg", 
           }));
 
-          const textos = categoryText[categoria] || {
-            subtitle: `Servicios de ${categoria}`,
-            description: `Explora todas nuestras opciones de ${categoria.toLowerCase()} diseñadas especialmente para ti.`,
-          };
-
-          const categoryId = categoria.toLowerCase().replace(/\s+/g, "-");
-
           return (
             <ServiceCategory
-              key={categoria}
+              key={cat.id}
               id={categoryId}
-              title={categoria}
-              subtitle={textos.subtitle}
-              description={textos.description}
+              title={cat.name}
+              subtitle={cat.slogan || `Servicios de ${cat.name}`}
+              description={cat.description || ""}
               services={mappedServices}
-              alternate={index % 2 !== 0} 
+              alternate={index % 2 !== 0}
             />
           );
         })

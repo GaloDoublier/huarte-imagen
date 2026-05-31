@@ -6,17 +6,31 @@ datasource db {
   provider = "postgresql"
 }
 
+//categorias
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?   // descripcion breve de la cat
+  slogan      String?   //slogan/chamuyo Ej: Maquillaje -> "Realza tu belleza"
+  services    Service[] // Relación hacia los servicios
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
 // Servicios Maq/Est
 model Service {
   id          String   @id @default(cuid())
   name        String
-  category    String   // cats: "Maquillaje", "Estética"
   description String
-  price       Int 
-  duration    String?
-  imageUrl    String? 
+  price       Int
+  duration    String
+  imageUrl    String?
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
+  
+  // Relacion categoria
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

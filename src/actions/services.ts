@@ -7,6 +7,9 @@ export async function getServices() {
   try {
     const services = await prisma.service.findMany({
       orderBy: { createdAt: "desc" },
+      include: {
+        category: true
+      }
     });
     return services;
   } catch (error) {
@@ -23,6 +26,9 @@ export async function getFeaturedServices() {
         isFeatured: true,
       },
       take: 4,
+      include: {
+        category: true
+      }
     });
     return featured;
   } catch (error) {
@@ -35,6 +41,9 @@ export async function getServiceById(id: string) {
   try {
     const service = await prisma.service.findUnique({
       where: { id },
+      include: {
+        category: true
+      }
     });
     return service;
   } catch (error) {
@@ -57,7 +66,7 @@ export async function deleteService(id: string) {
     return { success: true };
   } catch (error) {
     console.error("Error deleting service:", error);
-    return { success: false, error: "No se pudo eliminar el servicio" };
+    return { success: false, error: "No se pudo eliminar el servicio. Asegúrate de que no tenga dependencias." };
   }
 }
 
@@ -66,7 +75,7 @@ export async function createService(data: any) {
     const newService = await prisma.service.create({
       data: {
         name: data.name,
-        category: data.category,
+        categoryId: data.category, 
         description: data.description,
         price: data.price,
         duration: data.duration,
@@ -87,13 +96,14 @@ export async function createService(data: any) {
     return { success: false, error: "Hubo un error al crear el servicio." };
   }
 }
+
 export async function updateService(id: string, data: any) {
   try {
     const updatedService = await prisma.service.update({
       where: { id },
       data: {
         name: data.name,
-        category: data.category,
+        categoryId: data.category,
         description: data.description,
         price: data.price,          
         duration: data.duration,  

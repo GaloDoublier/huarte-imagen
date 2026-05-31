@@ -37,7 +37,9 @@ export async function Services() {
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {featuredServices.map((service) => {
-            const Icon = getCategoryIcon(service.category);
+            // Ahora extraemos el nombre de la categoría de forma segura
+            const categoryName = service.category?.name || "Categoría";
+            const Icon = getCategoryIcon(categoryName);
 
             return (
               <div

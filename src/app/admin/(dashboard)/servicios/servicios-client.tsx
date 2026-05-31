@@ -38,7 +38,6 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-// Importamos la acción de eliminar
 import { deleteService } from "@/actions/services";
 
 export function ServiciosClient({ initialServices }: { initialServices: any[] }) {
@@ -47,31 +46,30 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const filteredServices = services.filter(
-    (service) =>
+  // 1. CORRECCIÓN ACÁ: Extraemos el nombre de la categoría de forma segura
+  const filteredServices = services.filter((service) => {
+    const categoryName = service.category?.name || "";
+    
+    return (
       service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      categoryName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
 
-  // Función conectada a la base de datos real
   const handleDelete = async () => {
     if (!deleteId) return;
     setIsDeleting(true);
     
-    // 1. Guardamos el estado anterior por si falla
     const previousServices = [...services];
     
-    // 2. Borramos visualmente al instante (Optimistic Update)
     setServices(services.filter((s) => s.id !== deleteId));
     const targetId = deleteId;
     setDeleteId(null);
 
-    // 3. Ejecutamos la acción en el servidor
     try {
       const result = await deleteService(targetId);
       
       if (!result.success) {
-        // Si falló en la BD, revertimos la vista
         setServices(previousServices);
         alert(result.error || "No se pudo eliminar el servicio");
       }
@@ -89,7 +87,6 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
@@ -107,7 +104,6 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
         </Button>
       </div>
 
-      {/* Search */}
       <Card className="border-border/50">
         <CardContent className="pt-6">
           <div className="relative max-w-sm">
@@ -122,7 +118,6 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
         </CardContent>
       </Card>
 
-      {/* Services Table */}
       <Card className="border-border/50">
         <CardHeader>
           <CardTitle className="text-lg font-medium">
@@ -171,7 +166,8 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-normal">
-                        {service.category}
+                        {/* 2. CORRECCIÓN ACÁ: Renderizamos solo el 'name' de la categoría */}
+                        {service.category?.name || "Sin categoría"}
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-foreground">
@@ -233,7 +229,6 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

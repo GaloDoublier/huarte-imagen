@@ -48,6 +48,16 @@
 }
 
 @theme inline {
+  --animate-marquee: marquee 20s linear infinite;
+  @keyframes marquee {
+    from { 
+      transform: translateX(0%); 
+    }
+    to { 
+      transform: translateX(-50%); 
+    }
+  }
+
   --font-sans: 'Inter', 'Inter Fallback', sans-serif;
   --font-serif: 'Cormorant Garamond', 'Georgia', serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';

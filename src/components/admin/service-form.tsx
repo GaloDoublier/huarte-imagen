@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createService, updateService } from "@/actions/services"; 
+import { getAllCategories } from "@/actions/categories";
+import { CategoryManager } from "@/components/admin/category-manager";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,9 +28,8 @@ export interface ServiceFormData {
   name: string;
   category: string;
   description: string;
-  // 1. Cambiamos price para que acepte números (o vacío si borran todo)
   price: number | ""; 
-  duration: string; // duration lo dejamos en string porque en tu Prisma quedó como String
+  duration: string;
   status: "active" | "draft";
   isFeatured: boolean;
   image: string;
@@ -43,7 +44,7 @@ const defaultFormData: ServiceFormData = {
   name: "",
   category: "",
   description: "",
-  price: "", // Arranca vacío
+  price: "", 
   duration: "",
   status: "draft",
   isFeatured: false,
@@ -58,7 +59,17 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
   const [isSaving, setIsSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  // 2. Mejoramos el handler para que convierta el texto a número automáticamente
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+
+  const loadCategories = async () => {
+    const cats = await getAllCategories();
+    setCategories(cats);
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -163,7 +174,10 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
     formData.description.trim() !== "";
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col min-h-[calc(100vh-8rem)]">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col min-h-[calc(100vh-8rem)]"
+    >
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="icon" asChild className="shrink-0">
@@ -210,18 +224,31 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
 
               <div className="space-y-2">
                 <Label htmlFor="category">Categoría *</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={handleCategoryChange}
-                >
-                  <SelectTrigger id="category" className="bg-background">
-                    <SelectValue placeholder="Selecciona una categoría" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Maquillaje">Maquillaje</SelectItem>
-                    <SelectItem value="Estética">Estética</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.category}
+                    onValueChange={handleCategoryChange}
+                  >
+                    <SelectTrigger
+                      id="category"
+                      className="bg-background flex-1"
+                    >
+                      <SelectValue placeholder="Selecciona una categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <CategoryManager
+                    categories={categories}
+                    onCategoryUpdate={loadCategories}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -254,7 +281,7 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
                   <Input
                     id="price"
                     name="price"
-                    type="number" 
+                    type="number"
                     placeholder="Ej: 45000"
                     value={formData.price}
                     onChange={handleInputChange}
@@ -292,38 +319,37 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
               <CardTitle className="text-base font-medium">Estado</CardTitle>
             </CardHeader>
             <CardContent>
-            <div className="space-y-4">
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    Servicio Activo
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Visible en la página de servicios
-                  </p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Servicio Activo
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Visible en la página de servicios
+                    </p>
+                  </div>
+                  <Switch
+                    checked={formData.status === "active"}
+                    onCheckedChange={handleStatusChange}
+                  />
                 </div>
-                <Switch
-                  checked={formData.status === "active"}
-                  onCheckedChange={handleStatusChange}
-                />
-              </div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    Servicio Principal
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Visible en la página principal (solo 4 servicios)
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Servicio Principal
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Visible en la página principal (solo 4 servicios)
+                    </p>
+                  </div>
+                  <Switch
+                    checked={formData.isFeatured}
+                    onCheckedChange={handleFeaturedChange}
+                  />
                 </div>
-                <Switch
-                  checked={formData.isFeatured}
-                  onCheckedChange={handleFeaturedChange}
-                />
               </div>
-            </div>
             </CardContent>
           </Card>
 
