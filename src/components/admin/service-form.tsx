@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createService, updateService } from "@/actions/services"; 
 import { getAllCategories } from "@/actions/categories";
 import { CategoryManager } from "@/components/admin/category-manager";
+import { CldUploadWidget } from "next-cloudinary";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,8 +58,6 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
     initialData || defaultFormData
   );
   const [isSaving, setIsSaving] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
 
   const loadCategories = async () => {
@@ -74,7 +73,6 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-    
     let parsedValue: string | number = value;
     
     if (type === "number") {
@@ -96,47 +94,6 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
     setFormData((prev) => ({ ...prev, status: checked ? "active" : "draft" }));
   };
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData((prev) => ({
-          ...prev,
-          image: event.target?.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData((prev) => ({
-          ...prev,
-          image: event.target?.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const removeImage = () => {
     setFormData((prev) => ({ ...prev, image: "" }));
   };
@@ -147,7 +104,6 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
 
     try {
       let result;
-      
       if (isEditing && formData.id) {
         result = await updateService(formData.id, formData);
       } else {
@@ -174,10 +130,7 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
     formData.description.trim() !== "";
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col min-h-[calc(100vh-8rem)]"
-    >
+    <form onSubmit={handleSubmit} className="flex flex-col min-h-[calc(100vh-8rem)]">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="icon" asChild className="shrink-0">
@@ -191,23 +144,18 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
             {isEditing ? "Editar Servicio" : "Nuevo Servicio"}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {isEditing
-              ? "Modifica los detalles del servicio"
-              : "Completa los datos del nuevo servicio"}
+            {isEditing ? "Modifica los detalles del servicio" : "Completa los datos del nuevo servicio"}
           </p>
         </div>
       </div>
 
       {/* Form Content */}
       <div className="flex-1 grid gap-6 lg:grid-cols-3">
-        {/* Main Form */}
         <div className="lg:col-span-2 space-y-6">
           {/* Basic Info */}
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle className="text-base font-medium">
-                Información Básica
-              </CardTitle>
+              <CardTitle className="text-base font-medium">Información Básica</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -225,14 +173,8 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
               <div className="space-y-2">
                 <Label htmlFor="category">Categoría *</Label>
                 <div className="flex gap-2">
-                  <Select
-                    value={formData.category}
-                    onValueChange={handleCategoryChange}
-                  >
-                    <SelectTrigger
-                      id="category"
-                      className="bg-background flex-1"
-                    >
+                  <Select value={formData.category} onValueChange={handleCategoryChange}>
+                    <SelectTrigger id="category" className="bg-background flex-1">
                       <SelectValue placeholder="Selecciona una categoría" />
                     </SelectTrigger>
                     <SelectContent>
@@ -243,11 +185,7 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
                       ))}
                     </SelectContent>
                   </Select>
-
-                  <CategoryManager
-                    categories={categories}
-                    onCategoryUpdate={loadCategories}
-                  />
+                  <CategoryManager categories={categories} onCategoryUpdate={loadCategories} />
                 </div>
               </div>
 
@@ -269,27 +207,22 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
           {/* Pricing */}
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle className="text-base font-medium">
-                Precio y Duración
-              </CardTitle>
+              <CardTitle className="text-base font-medium">Precio y Duración</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="price">Precio</Label>
-                  {/* 3. Agregamos type="number" acá */}
                   <Input
                     id="price"
                     name="price"
-                    type="number"
+                    type="number" 
                     placeholder="Ej: 45000"
                     value={formData.price}
                     onChange={handleInputChange}
                     className="bg-background"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Opcional. Deja vacío si el precio es variable.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Opcional. Deja vacío si es variable.</p>
                 </div>
 
                 <div className="space-y-2">
@@ -302,9 +235,6 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
                     onChange={handleInputChange}
                     className="bg-background"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Duración aproximada del servicio.
-                  </p>
                 </div>
               </div>
             </CardContent>
@@ -322,38 +252,23 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Servicio Activo
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Visible en la página de servicios
-                    </p>
+                    <p className="text-sm font-medium text-foreground">Servicio Activo</p>
+                    <p className="text-xs text-muted-foreground">Visible en la página de servicios</p>
                   </div>
-                  <Switch
-                    checked={formData.status === "active"}
-                    onCheckedChange={handleStatusChange}
-                  />
+                  <Switch checked={formData.status === "active"} onCheckedChange={handleStatusChange} />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Servicio Principal
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Visible en la página principal (solo 4 servicios)
-                    </p>
+                    <p className="text-sm font-medium text-foreground">Servicio Principal</p>
+                    <p className="text-xs text-muted-foreground">Visible en la página principal (máx 4)</p>
                   </div>
-                  <Switch
-                    checked={formData.isFeatured}
-                    onCheckedChange={handleFeaturedChange}
-                  />
+                  <Switch checked={formData.isFeatured} onCheckedChange={handleFeaturedChange} />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Image Upload */}
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="text-base font-medium">Imagen</CardTitle>
@@ -373,45 +288,42 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
                     className="absolute top-2 right-2 p-1.5 bg-foreground/80 text-background rounded-full hover:bg-foreground transition-colors"
                   >
                     <X className="h-3 w-3" />
-                    <span className="sr-only">Eliminar imagen</span>
                   </button>
                 </div>
               ) : (
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`
-                    relative aspect-[4/3] rounded-sm border-2 border-dashed transition-colors
-                    flex flex-col items-center justify-center gap-3
-                    ${
-                      isDragging
-                        ? "border-accent bg-accent/10"
-                        : "border-border hover:border-muted-foreground/50"
+                <CldUploadWidget 
+                  uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                  options={{
+                    maxFiles: 1,
+                    clientAllowedFormats: ["jpg", "png", "jpeg", "webp"],
+                  }}
+                  onSuccess={(result: any) => {
+                    if (result?.info?.secure_url) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        image: result.info.secure_url,
+                      }));
                     }
-                  `}
+                  }}
                 >
-                  <div className="p-3 rounded-full bg-muted">
-                    <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <div className="text-center px-4">
-                    <p className="text-sm text-foreground">
-                      Arrastra una imagen aquí
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      o haz clic para seleccionar
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                </div>
+                  {({ open }) => (
+                    <div
+                      onClick={() => open()}
+                      className="relative aspect-[4/3] rounded-sm border-2 border-dashed border-border hover:border-muted-foreground/50 transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer"
+                    >
+                      <div className="p-3 rounded-full bg-muted">
+                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div className="text-center px-4">
+                        <p className="text-sm text-foreground">Subir imagen a Cloudinary</p>
+                        <p className="text-xs text-muted-foreground mt-1">Haz clic para abrir el gestor</p>
+                      </div>
+                    </div>
+                  )}
+                </CldUploadWidget>
               )}
               <p className="text-xs text-muted-foreground mt-3">
-                Formatos: JPG, PNG. Tamaño recomendado: 800x600px
+                Subida optimizada de forma externa. Formatos: JPG, PNG, WEBP.
               </p>
             </CardContent>
           </Card>
@@ -424,16 +336,7 @@ export function ServiceForm({ initialData, isEditing = false }: ServiceFormProps
           <Link href="/admin/servicios">Cancelar</Link>
         </Button>
         <Button type="submit" disabled={!isFormValid || isSaving}>
-          {isSaving ? (
-            <>
-              <span className="animate-spin mr-2">
-                <Upload className="h-4 w-4" />
-              </span>
-              Guardando...
-            </>
-          ) : (
-            "Guardar Servicio"
-          )}
+          {isSaving ? "Guardando..." : "Guardar Servicio"}
         </Button>
       </div>
     </form>

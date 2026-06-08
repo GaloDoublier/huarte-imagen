@@ -1,9 +1,11 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import { PageHeader } from "@/components/sections/page-header";
 import { Footer } from "@/components/sections/footer";
 import { ServiceCategory } from "@/components/servicios/service-category";
 import { getCategoriesWithServices } from "@/actions/categories";
 import { AnnouncementBar } from "@/components/ui/announcement-bar";
+import { getSiteConfig } from "@/actions/site-config";
 
 export const metadata: Metadata = {
   title: "Servicios | Huarte Imagen",
@@ -12,16 +14,32 @@ export const metadata: Metadata = {
 };
 
 export default async function ServiciosPage() {
-
   const categories = await getCategoriesWithServices();
+  const config = await getSiteConfig();
 
   return (
     <main className="min-h-screen bg-background">
       <PageHeader />
       
-      {/* Hero */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-secondary/30">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <section 
+        className="pt-32 pb-20 md:pt-40 md:pb-28 bg-secondary/30"
+        style={{ position: "relative", overflow: "hidden" }}
+      >
+        <div className="absolute inset-0 z-0">
+          <Image
+          src="/images/services.jpg"
+          alt="Fondo de sección servicios"
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-background/70" />
+        </div>
+        
+        
+        <div className="absolute inset-0 bg-background/80 -z-10" />
+
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground mb-4">
               Servicios
@@ -36,8 +54,6 @@ export default async function ServiciosPage() {
             </p>
           </div>
         
-
-          {/* Botones de navegación dinámicos basados en la BDD */}
           {categories.length > 0 && (
             <div className="mt-12 flex flex-wrap justify-center gap-4">
               {categories.map((cat) => {
@@ -56,9 +72,13 @@ export default async function ServiciosPage() {
           )}
         </div>
       </section>
-      <AnnouncementBar  message="¡25% de descuento pagando con tu tarjeta Porongon!" isActive={true} />
+      
+      <AnnouncementBar
+        message={config.announcementMessage || "¡Bienvenido a Huarte Imagen!"}
+        isActive={config.announcementActive}
+        link={config.announcementLink || undefined}
+      />
 
-      {/* Secciones de Servicios agrupados por Categoría */}
       {categories.length > 0 ? (
         categories.map((cat, index) => {
           const categoryId = cat.name.toLowerCase().replace(/\s+/g, "-");

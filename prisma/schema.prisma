@@ -35,3 +35,39 @@ model Service {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// Configuracion del sitio (singleton)
+model SiteConfig {
+  id        String   @id @default(cuid())
+  
+  // General
+  siteName           String   @default("Huarte Imagen")
+  
+  // Contacto / Redes
+  whatsappNumber     String   @default("")
+  instagramUrl       String   @default("")
+  email              String   @default("")
+  
+  // Programa Online
+  hotmartUrl         String   @default("")
+  
+  // About — bio + 3 stats
+  aboutBio           String   @default("")
+  aboutStat1Value    String   @default("8+")
+  aboutStat1Label    String   @default("Años de experiencia")
+  aboutStat2Value    String   @default("500+")
+  aboutStat2Label    String   @default("Clientas transformadas")
+  aboutStat3Value    String   @default("100%")
+  aboutStat3Label    String   @default("Dedicación personal")
+  
+  // Announcement Bar
+  announcementMessage String  @default("")
+  announcementActive  Boolean @default(false)
+  announcementLink    String?
+  
+  // Testimonios
+  testimonials        Json    @default("[]")
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

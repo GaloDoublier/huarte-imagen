@@ -6,16 +6,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MessageCircle, Mail } from "lucide-react";
 import { useState } from "react";
-import { whatsappUrl } from "@/constants/constants";
 import { usePostHog } from "posthog-js/react";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+
+const WHATSAPP_BASE = "https://wa.me";
 
 export function Contact() {
+  const config = useSiteConfig();
   const [name, setName] = useState("");
   const [emailField, setEmailField] = useState("");
   const [service, setService] = useState("");
   const [messageField, setMessageField] = useState("");
 
   const posthog = usePostHog();
+
+  const whatsappUrl = config.whatsappNumber
+    ? `${WHATSAPP_BASE}/${config.whatsappNumber.replace(/[^0-9]/g, "")}`
+    : "";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +35,7 @@ export function Contact() {
       messageField || "(sin mensaje)"
     }`;
 
-    // Build whatsapp URL using the imported whatsappUrl base
-    const base = whatsappUrl.split("?")[0];
+    const base = `${WHATSAPP_BASE}/${config.whatsappNumber.replace(/[^0-9]/g, "")}`;
     const url = `${base}?text=${encodeURIComponent(text)}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
@@ -60,7 +66,7 @@ export function Contact() {
                 className="w-full sm:w-auto bg-[#25D366] text-white hover:bg-[#25D366]/90 px-8 py-6 text-sm uppercase tracking-wider"
                 onClick={() => posthog.capture("whatsapp_clicked")}
               >
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <a href={whatsappUrl || "#"} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Escríbeme por WhatsApp
                 </a>
@@ -68,14 +74,14 @@ export function Contact() {
 
               <div className="flex items-center gap-6 pt-4">
                 <a
-                  href="mailto:hola@huarteimagen.com"
+                  href={`mailto:${config.email}`}
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <Mail className="w-5 h-5" />
-                  <span className="text-sm">hola@huarteimagen.com</span>
+                  <span className="text-sm">{config.email || "hola@huarteimagen.com"}</span>
                 </a>
                 <a
-                  href="https://instagram.com/huarteimagen"
+                  href={config.instagramUrl || "https://instagram.com/huarteimagen"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -96,7 +102,7 @@ export function Contact() {
                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
                     <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
                   </svg>
-                  <span className="text-sm">@huarteimagen</span>
+                  <span className="text-sm">{config.instagramUrl ? "@" + config.instagramUrl.split("/").pop()?.replace("@", "") || "huarteimagen" : "@huarteimagen"}</span>
                 </a>
               </div>
             </div>

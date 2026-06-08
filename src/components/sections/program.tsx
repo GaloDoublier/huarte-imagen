@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Check, ExternalLink } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 const programFeatures = [
   "Módulos de colorimetría y análisis de estilo",
@@ -14,6 +15,7 @@ const programFeatures = [
 ];
 
 export function Program() {
+  const config = useSiteConfig();
   const posthog = usePostHog();
   return (
     <section id="programa" className="py-24 md:py-32 bg-foreground text-background">
@@ -46,7 +48,7 @@ export function Program() {
               className="bg-background text-foreground hover:bg-background/90 px-8 py-6 text-sm uppercase tracking-wider"
             >
               <a
-                href="https://hotmart.com"
+                href={config.hotmartUrl || "https://hotmart.com"}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => posthog.capture("program_clicked")}

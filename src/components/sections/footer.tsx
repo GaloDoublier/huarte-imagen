@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { Mail, Settings } from "lucide-react";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 export function Footer() {
+  const config = useSiteConfig();
+
   return (
     <footer className="py-12 bg-foreground text-background">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -11,14 +14,14 @@ export function Footer() {
           {/* Logo */}
           <a href="#" className="flex-shrink-0">
             <span className="font-serif text-xl font-medium tracking-wide">
-              HUARTE IMAGEN
+              {config.siteName || "HUARTE IMAGEN"}
             </span>
           </a>
 
           {/* Social Links */}
           <div className="flex items-center gap-6">
             <a
-              href="https://instagram.com/huarteimagen"
+              href={config.instagramUrl || "https://instagram.com/huarteimagen"}
               target="_blank"
               rel="noopener noreferrer"
               className="text-background/60 hover:text-background transition-colors"
@@ -42,7 +45,7 @@ export function Footer() {
               </svg>
             </a>
             <a
-              href="mailto:hola@huarteimagen.com"
+              href={`mailto:${config.email}`}
               className="text-background/60 hover:text-background transition-colors"
               aria-label="Email"
             >
@@ -53,7 +56,7 @@ export function Footer() {
           {/* Copyright & Admin Link */}
           <div className="flex items-center gap-4">
             <p className="text-sm text-background/60">
-              © {new Date().getFullYear()} Huarte Imagen. Todos los derechos
+              © {new Date().getFullYear()} {config.siteName || "Huarte Imagen"}. Todos los derechos
               reservados.
             </p>
             <Link

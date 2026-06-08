@@ -8,13 +8,20 @@ import { Program } from "@/components/sections/program";
 import { Contact } from "@/components/sections/contact";
 import { Footer } from "@/components/sections/footer";
 import { AnnouncementBar } from "@/components/ui/announcement-bar";
+import { getSiteConfig } from "@/actions/site-config";
 
-export default function Home() {
+export default async function Home() {
+  const config = await getSiteConfig();
+
   return (
     <main>
       <Header />
       <Hero />
-      <AnnouncementBar  message="!25% de descuento pagando con tu targeta Porongon!" isActive={true} />
+      <AnnouncementBar
+        message={config.announcementMessage || "¡Bienvenido a Huarte Imagen!"}
+        isActive={config.announcementActive}
+        link={config.announcementLink || undefined}
+      />
       <Services />
       <Espacio />
       <About />

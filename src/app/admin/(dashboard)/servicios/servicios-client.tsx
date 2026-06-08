@@ -46,7 +46,6 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // 1. CORRECCIÓN ACÁ: Extraemos el nombre de la categoría de forma segura
   const filteredServices = services.filter((service) => {
     const categoryName = service.category?.name || "";
     
@@ -142,9 +141,9 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
                   <TableRow key={service.id}>
                     <TableCell>
                       <div className="relative h-12 w-12 rounded-sm overflow-hidden bg-muted">
-                        {service.image ? (
+                        { service.imageUrl ? (
                           <Image
-                            src={service.image}
+                            src={service.imageUrl}
                             alt={service.name}
                             fill
                             className="object-cover"
@@ -166,7 +165,7 @@ export function ServiciosClient({ initialServices }: { initialServices: any[] })
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-normal">
-                        {/* 2. CORRECCIÓN ACÁ: Renderizamos solo el 'name' de la categoría */}
+   
                         {service.category?.name || "Sin categoría"}
                       </Badge>
                     </TableCell>

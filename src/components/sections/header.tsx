@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { whatsappUrl } from "@/constants/constants";
 import { usePostHog } from "posthog-js/react";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 const navigation = [
     { name: "Inicio", href: "#inicio" },
@@ -14,9 +14,17 @@ const navigation = [
   { name: "Contacto", href: "#contacto" },
 ];
 
+const WHATSAPP_BASE = "https://wa.me";
+
 export function Header() {
+  const config = useSiteConfig();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const posthog = usePostHog();
+
+  const whatsappUrl = config.whatsappNumber
+    ? `${WHATSAPP_BASE}/${config.whatsappNumber.replace(/[^0-9]/g, "")}`
+    : "#";
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <nav className="mx-auto max-w-7xl px-6 lg:px-8" aria-label="Global">
